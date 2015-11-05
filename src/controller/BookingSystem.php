@@ -33,15 +33,16 @@ class BookingSystem
 
             foreach($data as $node){
                 /** @var $node \DOMElement  */
-                if(strpos($node->getAttribute("href"), 'calendar') !== false){
 
-                    $url = $this->model->getRootPage();
-                    $url = (substr($url,-1) == '/' ? rtrim($url, '/') : $url) . $node->getAttribute("href");
-                    $url = substr($url,-1) != '/' ? $url . '/' : $url;
-                    $this->scanCalendar($url);
+                $url = $this->model->getRootPage();
+                $url = (substr($url,-1) == '/' ? rtrim($url, '/') : $url) . $node->getAttribute("href");
+                $url = substr($url,-1) != '/' ? $url . '/' : $url;
+
+                if(strpos($node->getAttribute("href"), 'calendar') !== false){
+                    $this->model->setCalendars($this->scanCalendar($url));
 
                 }elseif(strpos($node->getAttribute("href"), 'cinema') !== false){
-                    $this->scanCinema();
+                    $this->scanCinema($url);
                 }elseif(strpos($node->getAttribute("href"), 'dinner') !== false){
                     $this->scanRestaurant();
                 }
@@ -57,15 +58,70 @@ class BookingSystem
     private function scanCalendar($url){
         $scrape = new WebScraper();
         $data = $scrape->get($url . '/')->find('//a')->getData();
-        var_dump($data);
+        $calendars = array();
+
         foreach($data as $node){
             /** @var $node \DOMElement  */
-            echo '<br/>' . $node->nodeValue . '<br/>';
+            $scrape->get($url . $node->getAttribute("href"));
+            $days = $scrape->find('//table//th')->getData();
+            $available = $scrape->find('//table//td')->getData();
+            $person = $scrape->find('/html/body/h2')->getData();
+
+            $person = $person->item(0)->nodeValue;
+            $calendars[$person] = array();
+            for($i = 0; $i < $days->length; $i++){
+                $calendars[$person][$days->item($i)->nodeValue] = $available->item($i)->nodeValue;
+            }
+
         }
+
+        return $calendars;
     }
 
-    private function scanCinema(){
+    private function scanCinema($url){
+        $scrape = new WebScraper();
+        $data = $scrape->get($url . '/')->find('//select[@id="movie"]//option[@value]')->getData();
+        $movies = array();
 
+        foreach($data as $node){
+             /** @var $node \DOMElement  */
+            $movies[$node->getAttribute("value")] = $node->nodeValue;
+        }
+
+        $datesFromCinema = $scrape->get($url . '/')->find('//select[@id="day"]//option[@value]')->getData();
+        $scrape->reset();
+
+        $dates = $this->model->getFreeDates();
+
+        foreach($dates as $date => $status){
+            $dates[$date] = array();
+            $dateID = 0;
+            foreach($datesFromCinema as $movieDate){
+                $dateString = '';
+
+                switch($movieDate->nodeValue){
+                    case 'Fredag':
+                        $dateString = 'Friday';
+                        break;
+                    case 'Lördag':
+                        $dateString = 'Saturday';
+                        break;
+                    case 'Söndag':
+                        $dateString = 'Sunday';
+                        break;
+                }
+
+                if($dateString == $date){
+                    $dateID = $movieDate->getAttribute("value");
+                }
+            }
+
+            foreach($movies as $movieId => $name){
+                $result = $scrape->get($url . 'check?day=' . $dateID . '&movie=' . $movieId)->getData();
+                $dates[$date] = $result;
+            }
+        }
+        var_dump($dates);
     }
 
     private function scanRestaurant(){

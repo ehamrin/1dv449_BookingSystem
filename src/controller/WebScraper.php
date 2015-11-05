@@ -6,7 +6,8 @@ namespace controller;
 
 class WebScraper
 {
-    private $data;
+    private $data = null;
+    private $foundResult = null;
 
     /**
      * @param $url
@@ -49,7 +50,7 @@ class WebScraper
         $dom = new \DOMDocument();
         if($dom->loadHTML($this->data)){
             $xpath = new \DOMXPath($dom);
-            $this->data = $xpath->query($query);
+            $this->foundResult = $xpath->query($query);
         }
 
         //Enable chaining
@@ -57,9 +58,17 @@ class WebScraper
     }
 
     /**
-     * @return \DOMNodeList[]
+     * @return \DOMNodeList
      */
     public function getData(){
+        if($this->foundResult){
+            return $this->foundResult;
+        }
+
         return $this->data;
+    }
+
+    public function reset(){
+        $this->foundResult = null;
     }
 }
