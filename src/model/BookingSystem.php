@@ -21,4 +21,8 @@ class BookingSystem
     public function reset(){
         unset($_SESSION['root_url']);
     }
+
+    public function saveRootNode($name, $value){
+
+    }
 }

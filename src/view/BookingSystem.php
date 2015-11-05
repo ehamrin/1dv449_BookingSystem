@@ -41,7 +41,8 @@ class BookingSystem
         return $_REQUEST[self::$formRootURL];
     }
 
-    public function showAvailable(array $data){
+    public function showAvailable($data){
+        var_dump($data);
         return 'Options will be presented..';
     }
 }
