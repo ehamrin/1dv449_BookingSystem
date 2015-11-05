@@ -15,6 +15,7 @@ class HTMLTemplate
     <title>eh222ve - Booking System</title>
 </head>
 <body>
+    <div><a href="?reset">Start over</a></div>
     {$body}
 </body>
 </html>
