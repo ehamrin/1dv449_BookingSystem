@@ -652,3 +652,31 @@ button:hover, .button:hover, input[type=submit]:hover{
     z-index: 2000;
     padding: 20px;
 }
+
+.check-hidden{
+    display: none;
+}
+.date-info{
+    background-color: #f7f7f7;
+    cursor: pointer;
+    padding: 20px;
+    margin: 2px;
+}
+
+.error, .success{
+    padding: 20px;
+}
+.info{
+    padding: 5px;
+}
+
+.check-hidden:checked + .date-info{
+    background-color: #84e67a;
+}
+
+.wrapper{
+    max-width: 80%;
+    width: 960px;
+    margin: 0 auto;
+    margin-top: 50px;
+}

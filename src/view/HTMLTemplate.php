@@ -16,8 +16,10 @@ class HTMLTemplate
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <div><a href="?reset">Start over</a></div>
+    <div class="wrapper">
+    <div><a href="?reset">Nollställ</a></div>
     {$body}
+    </div>
 </body>
 </html>
 HTML;

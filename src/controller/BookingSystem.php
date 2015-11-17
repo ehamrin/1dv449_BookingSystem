@@ -35,7 +35,7 @@ class BookingSystem
                 $this->model->getRootPage(),
                 $this->view->getDate()
             )){
-                $this->output = $result;
+                $this->output = $this->view->setSuccessfulBooking($result);
                 $this->model->reset();
             }else{
                 if(!$this->model->hasRootPages()){
