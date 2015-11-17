@@ -33,7 +33,6 @@ class BookingSystem
 
     public function getDate(){
         $data = $this->model->getAvailableMovieDinners();
-        debug($_REQUEST['date']);
         return $data[$_REQUEST['date']];
     }
 
@@ -53,7 +52,6 @@ class BookingSystem
 
     public function showAvailable(){
         $data = $this->model->getAvailableMovieDinners();
-
         $options = '<form action="" method="POST">';
         $prev = "";
         foreach($data as $id => $date){

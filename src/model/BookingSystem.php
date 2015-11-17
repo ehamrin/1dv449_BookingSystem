@@ -35,6 +35,7 @@ class BookingSystem
 
     public function reset(){
         unset($_SESSION['root_url']);
+        unset($_SESSION['root_pages']);
         unset($_SESSION['cinema']);
         unset($_SESSION['dinner']);
         unset($_SESSION['calendar']);
@@ -116,5 +117,20 @@ class BookingSystem
             }
         }
         return $dates;
+    }
+
+    public function setRootPages($findRootPages)
+    {
+        $_SESSION['root_pages'] = $findRootPages;
+    }
+
+    public function getRootPages()
+    {
+        return $_SESSION['root_pages'];
+    }
+
+    public function hasRootPages()
+    {
+        return isset($_SESSION['root_pages']);
     }
 }

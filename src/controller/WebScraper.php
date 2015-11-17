@@ -8,6 +8,7 @@ class WebScraper
 {
     private $data = null;
     private $foundResult = null;
+    private $info = array();
 
     /**
      * @param $url
@@ -17,7 +18,9 @@ class WebScraper
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
         $data = curl_exec($ch);
+        $this->info = curl_getinfo($ch);
         curl_close($ch);
         $this->data = $data;
 
@@ -34,7 +37,10 @@ class WebScraper
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch,CURLOPT_POST, count($post));
+        curl_setopt($ch,CURLOPT_POSTFIELDS, implode('&',$post));
         $data = curl_exec($ch);
+        $this->info = curl_getinfo($ch);
         curl_close($ch);
         $this->data = $data;
 
@@ -68,7 +74,11 @@ class WebScraper
         return $this->data;
     }
 
+    public function getInfo(){
+        return $this->info;
+    }
     public function reset(){
         $this->foundResult = null;
+        $this->info = array();
     }
 }
