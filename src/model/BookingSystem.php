@@ -6,8 +6,12 @@ namespace model;
 
 class BookingSystem
 {
-    private $calendar;
-    private $cinema;
+    private $waiting;
+
+    public function __construct($waiting = 0)
+    {
+        $this->waiting = $waiting;
+    }
 
     public function setRoot($url){
         $_SESSION['root_url'] = $url;
@@ -94,8 +98,8 @@ class BookingSystem
                         $movieStart = strtotime('2000-01-01 ' . $movie->start);
                         $movieEnd = $movieStart + (60*60*2);
                         if(
-                            $dinnerEnd < $movieStart ||
-                            $movieEnd < $dinnerStart
+                            $dinnerEnd + $this->waiting <= $movieStart ||
+                            $movieEnd + $this->waiting <= $dinnerStart
                         ){
                             if($movieStart - $dinnerEnd > 0){
                                 $waiting = $movieStart - $dinnerEnd;

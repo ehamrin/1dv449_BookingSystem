@@ -20,7 +20,7 @@ spl_autoload_register(function ($class) {
 
 session_start();
 
-$booking = new controller\BookingSystem();
+$booking = new controller\BookingSystem('zeke', 'coys', 15);
 $template = new view\HTMLTemplate();
 echo $template->render($booking->getView());
 

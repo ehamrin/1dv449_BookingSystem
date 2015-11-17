@@ -9,8 +9,15 @@ class BookingSystem
     private $view;
     private $output;
 
-    public function __construct(){
-        $this->model = new \model\BookingSystem();
+    private $username;
+    private $password;
+
+    public function __construct($username, $password, $waiting = 0){
+
+        $this->username = $username;
+        $this->password = $password;
+
+        $this->model = new \model\BookingSystem($waiting);
         $this->view = new \view\BookingSystem($this->model);
 
         $this->doControl();
@@ -29,8 +36,8 @@ class BookingSystem
             $this->output = $this->view->showRootForm();
         }else{
             if($this->view->submittedDate() && $result = MovieDateScraper::BookRestaurant(
-                'zeke',
-                'coys',
+                $this->username,
+                $this->password,
                 $this->model->getRootPages()['dinner'],
                 $this->model->getRootPage(),
                 $this->view->getDate()
