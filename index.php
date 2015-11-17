@@ -1,6 +1,12 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+ini_set('display_errors', 0);
+
+function debug($data){
+    echo '<div class="info debugging"><pre>';
+    var_dump($data);
+    echo '</pre></div>';
+}
 
 spl_autoload_register(function ($class) {
     $class = str_replace("\\", DIRECTORY_SEPARATOR, $class);
@@ -10,8 +16,12 @@ spl_autoload_register(function ($class) {
     }
 });
 
+
+
 session_start();
 
 $booking = new controller\BookingSystem();
 $template = new view\HTMLTemplate();
 echo $template->render($booking->getView());
+
+

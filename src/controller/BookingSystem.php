@@ -28,26 +28,29 @@ class BookingSystem
         if($this->model->hasRootPage() == false){
             $this->output = $this->view->showRootForm();
         }else{
-            $scrape = new WebScraper($this->model->getRootPage());
-            $data = $scrape->get($this->model->getRootPage())->find('//a')->getData();
+            if($this->view->submittedDate()){
+                debug($this->view->getDate());
+            }else{
 
-            foreach($data as $node){
-                /** @var $node \DOMElement  */
+                $scrape = new WebScraper($this->model->getRootPage());
+                $data = $scrape->get($this->model->getRootPage())->find('//a')->getData();
 
-                $url = $this->model->getRootPage();
-                $url = (substr($url,-1) == '/' ? rtrim($url, '/') : $url) . $node->getAttribute("href");
-                $url = substr($url,-1) != '/' ? $url . '/' : $url;
+                foreach($data as $node){
+                    /** @var $node \DOMElement  */
 
-                if(strpos($node->getAttribute("href"), 'calendar') !== false){
-                    $this->model->setCalendars($this->scanCalendar($url));
-
-                }elseif(strpos($node->getAttribute("href"), 'cinema') !== false){
-                    $this->scanCinema($url);
-                }elseif(strpos($node->getAttribute("href"), 'dinner') !== false){
-                    $this->scanRestaurant();
+                    $url = $this->model->getRootPage();
+                    $url = (substr($url,-1) == '/' ? rtrim($url, '/') : $url) . $node->getAttribute("href");
+                    $url = substr($url,-1) != '/' ? $url . '/' : $url;
+                    if(strpos($node->getAttribute("href"), 'calendar') !== false && !$this->model->hasCalendar()){
+                        $this->model->setCalendars($this->scanCalendar($url));
+                    }elseif(strpos($node->getAttribute("href"), 'cinema') !== false && !$this->model->hasCinema()){
+                        $this->model->setCinema($this->scanCinema($url));
+                    }elseif(strpos($node->getAttribute("href"), 'dinner') !== false && !$this->model->hasDinner()){
+                        $this->model->setDinner($this->scanRestaurant($url));
+                    }
                 }
+                $this->output = $this->view->showAvailable();
             }
-            $this->output = $this->view->showAvailable($data);
         }
     }
 
@@ -57,7 +60,7 @@ class BookingSystem
 
     private function scanCalendar($url){
         $scrape = new WebScraper();
-        $data = $scrape->get($url . '/')->find('//a')->getData();
+        $data = @$scrape->get($url . '/')->find('//a')->getData();
         $calendars = array();
 
         foreach($data as $node){
@@ -117,15 +120,52 @@ class BookingSystem
             }
 
             foreach($movies as $movieId => $name){
-                $result = $scrape->get($url . 'check?day=' . $dateID . '&movie=' . $movieId)->getData();
-                $dates[$date] = $result;
+                $results = $scrape->get($url . 'check?day=' . $dateID . '&movie=' . $movieId)->getData();
+                $results = json_decode($results);
+                foreach($results as $result){
+                    if($result->status){
+                        if(!isset($dates[$date])){
+                            $dates[$date] = array();
+                        }
+                        $dates[$date][] = new \model\MovieTime($name, $result->movie, $date, $result->time);
+                    }
+                }
             }
         }
-        var_dump($dates);
+        return $dates;
     }
 
-    private function scanRestaurant(){
+    private function scanRestaurant($url){
+        $scrape = new WebScraper();
+        $data = $scrape->get(\URL::concatenate($url))->find('//input[@type="radio"]')->getData();
+        $date = array();
 
+        foreach($data as $node){
+            /** @var $node \DOMElement  */
+            preg_match("/([a-z]{3})(\d{2})(\d{2})/", $node->getAttribute("value"), $matches );
+
+            $dateString = "";
+            switch($matches[1]){
+                case 'fre':
+                    $dateString = 'Friday';
+                    break;
+                case 'lor':
+                    $dateString = 'Saturday';
+                    break;
+                case 'son':
+                    $dateString = 'Sunday';
+                    break;
+            }
+
+            if(!isset($date[$dateString])){
+                $date[$dateString] = array();
+            }
+
+            $date[$dateString][] = new \model\DinnerTime($matches[2], $matches[3], $node->getAttribute("value"));
+
+        }
+
+        return $date;
     }
 
 
