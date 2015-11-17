@@ -16,6 +16,7 @@ class MovieDateScraper
             $value = str_replace('/', '', $node->getAttribute("href"));
             $values[$value] = \URL::concatenate($url, $value);
         }
+
         return $values;
     }
 
@@ -27,19 +28,20 @@ class MovieDateScraper
 
         foreach($data as $node){
             /** @var $node \DOMElement  */
+
             $scrape->get(\URL::concatenate($url, $node->getAttribute("href")));
             $days = $scrape->find('//table//th')->getData();
-            $available = $scrape->find('//table//td')->getData();
-            $person = $scrape->find('/html/body/h2')->getData();
 
-            $person = $person->item(0)->nodeValue;
+            $available = $scrape->find('//table//td')->getData();
+            $person = $scrape->find('//h2')->getData();
+            $person = $person->item(0)->textContent;
+
             $calendars[$person] = array();
             for($i = 0; $i < $days->length; $i++){
-                $calendars[$person][$days->item($i)->nodeValue] = $available->item($i)->nodeValue;
+                $calendars[$person][$days->item($i)->textContent] = $available->item($i)->textContent;
             }
 
         }
-
         return $calendars;
     }
 
@@ -50,7 +52,7 @@ class MovieDateScraper
 
         foreach($data as $node){
             /** @var $node \DOMElement  */
-            $movies[$node->getAttribute("value")] = $node->nodeValue;
+            $movies[$node->getAttribute("value")] = $node->textContent;
         }
 
         $datesFromCinema = $scrape->get($url)->find('//select[@id="day"]//option[@value]')->getData();
@@ -62,7 +64,7 @@ class MovieDateScraper
             foreach($datesFromCinema as $movieDate){
                 $dateString = '';
 
-                switch($movieDate->nodeValue){
+                switch($movieDate->textContent){
                     case 'Fredag':
                         $dateString = 'Friday';
                         break;
