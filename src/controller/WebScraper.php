@@ -10,6 +10,8 @@ class WebScraper
     private $foundResult = null;
     private $info = array();
 
+    private static $userAgent = '{"Name": "Robot BookingSystem", "Location": "http://www.erikhamrin.se", "Email": "kontakt@erikhamrin.se"}';
+
     /**
      * @param $url
      * @return WebScraper
@@ -19,6 +21,7 @@ class WebScraper
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+        curl_setopt($ch, CURLOPT_USERAGENT, self::$userAgent);
         $data = curl_exec($ch);
         $this->info = curl_getinfo($ch);
         curl_close($ch);
@@ -39,6 +42,7 @@ class WebScraper
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
         curl_setopt($ch,CURLOPT_POST, count($post));
         curl_setopt($ch,CURLOPT_POSTFIELDS, implode('&',$post));
+        curl_setopt($ch, CURLOPT_USERAGENT, self::$userAgent);
         $data = curl_exec($ch);
         $this->info = curl_getinfo($ch);
         curl_close($ch);
