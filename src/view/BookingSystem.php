@@ -14,8 +14,8 @@ class BookingSystem
         $this->model = $model;
     }
 
-    public function showRootForm(){
-        return '
+    public function showRootForm($message = false){
+        return ($message ? '<p class="error">' . $message . '</p>' : '') . '
 <form method="POST" action="">
     <input type="url" name="' . self::$formRootURL . '" placeholder="Ange URL"/>
     <button type="submit">Starta</button>
