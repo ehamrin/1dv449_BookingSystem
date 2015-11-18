@@ -656,9 +656,13 @@ button:hover, .button:hover, input[type=submit]:hover{
 .check-hidden{
     display: none;
 }
+
+.link{
+    cursor: pointer;
+}
+
 .date-info{
     background-color: #f7f7f7;
-    cursor: pointer;
     padding: 20px;
     margin: 2px;
 }

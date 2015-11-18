@@ -1,6 +1,9 @@
 <?php
-//error_reporting(E_ALL);
-ini_set('display_errors', 0);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+libxml_use_internal_errors(TRUE);
+
+class ScraperException extends \Exception{}
 
 function debug($data){
     echo '<div class="info debugging"><pre>';
