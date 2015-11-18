@@ -1,6 +1,5 @@
 <?php
 
-
 namespace controller;
 
 class BookingSystem
@@ -35,37 +34,18 @@ class BookingSystem
         if($this->model->hasRootPage() == false){
             $this->output = $this->view->showRootForm();
         }else{
+            $this->model->scan();
+
             try{
-                if(
-                    $this->view->submittedDate() &&
-                    $result = MovieDateScraper::BookRestaurant(
-                        $this->username,
-                        $this->password,
-                        $this->model->getRootPages()['dinner'],
-                        $this->model->getRootPage(),
-                        $this->view->getDate()
-                    )
-                ){
+                if($this->view->submittedDate() && $result = $this->model->bookRestaurant($this->username, $this->password, $this->view->getDate())){
                     $this->output = $this->view->setSuccessfulBooking($result);
                     $this->model->reset();
                 }else{
-                    if(!$this->model->hasRootPages()){
-                        $this->model->setRootPages(MovieDateScraper::findRootPages($this->model->getRootPage()));
-                    }
-
-                    $pages = $this->model->getRootPages();
-
-                    foreach($this->model->getRootPages() as $url){
-                        if(!$this->model->hasCalendar()){
-                            $this->model->setCalendars(MovieDateScraper::scanCalendar($pages['calendar']));
-                        }elseif(!$this->model->hasCinema()){
-                            $this->model->setCinema(MovieDateScraper::scanCinema($pages['cinema'], $this->model->getFreeDates()));
-                        }elseif(!$this->model->hasDinner()){
-                            $this->model->setDinner(MovieDateScraper::scanRestaurant($pages['dinner']));
-                        }
-                    }
                     $this->output = $this->view->showAvailable();
                 }
+            }catch(\ScraperException $e){
+                $this->model->reset();
+                $this->output = $this->view->showRootForm($e->getMessage());
             }catch(\Exception $e){
                 $this->model->reset();
                 $this->output = $this->view->showRootForm("Unexpected Error");
@@ -76,11 +56,4 @@ class BookingSystem
     public function getView(){
         return $this->output;
     }
-
-
-
-
-
-
-
 }

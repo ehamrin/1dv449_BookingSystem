@@ -13,6 +13,37 @@ class BookingSystem
         $this->waiting = $waiting;
     }
 
+    public function scan(){
+        if(!$this->hasRootPages()){
+            $this->setRootPages(MovieDateScraper::findRootPages($this->getRootPage()));
+        }
+
+        if(!$this->hasCalendar()) {
+            if(!isset($this->getRootPages()['calendar'])){
+                throw new \ScraperException("Could not find calendar url");
+            }
+            $this->setCalendars(MovieDateScraper::scanCalendar($this->getRootPages()['calendar']));
+        }
+
+        if(!$this->hasCinema()){
+            if(!isset($this->getRootPages()['cinema'])){
+                throw new \ScraperException("Could not find cinema url");
+            }
+            $this->setCinema(MovieDateScraper::scanCinema($this->getRootPages()['cinema'], $this->getFreeDates()));
+        }
+
+        if(!$this->hasDinner()){
+            if(!isset($this->getRootPages()['dinner'])){
+                throw new \ScraperException("Could not find dinner url");
+            }
+            $this->setDinner(MovieDateScraper::scanRestaurant($this->getRootPages()['dinner']));
+        }
+    }
+
+    public function bookRestaurant($username, $password, $date){
+        return MovieDateScraper::BookRestaurant($username, $password, $this->getRootPages()['dinner'], $this->getRootPage(), $date);
+    }
+
     public function setRoot($url){
         $_SESSION['root_url'] = $url;
     }
@@ -21,19 +52,19 @@ class BookingSystem
         return isset($_SESSION['root_url']);
     }
 
-    public function hasCalendar(){
+    private function hasCalendar(){
         return isset($_SESSION['calendar']);
     }
 
-    public function hasCinema(){
+    private function hasCinema(){
         return isset($_SESSION['cinema']);
     }
 
-    public function hasDinner(){
+    private function hasDinner(){
         return isset($_SESSION['dinner']);
     }
 
-    public function getRootPage(){
+    private function getRootPage(){
         return $_SESSION['root_url'];
     }
 
@@ -45,28 +76,26 @@ class BookingSystem
         unset($_SESSION['calendar']);
     }
 
-    public function saveRootNode($name, $value){
+    private function setCalendars(array $calendar){
 
-    }
-
-    public function setCalendars(array $calendar){
         $_SESSION['calendar'] = $calendar;
     }
 
-    public function setCinema(array $cinema){
+    private function setCinema(array $cinema){
         $_SESSION['cinema'] = $cinema;
     }
 
-    public function setDinner(array $dinner){
+    private function setDinner(array $dinner){
         $_SESSION['dinner'] = $dinner;
     }
 
     /**
      * @return array
      */
-    public function getFreeDates(){
+    private function getFreeDates(){
         $freeDate = array();
         $first = true;
+
         foreach($_SESSION['calendar'] as $person => $array){
             foreach($array as $day => $status){
                 $status = trim(strtolower($status));
@@ -123,17 +152,17 @@ class BookingSystem
         return $dates;
     }
 
-    public function setRootPages($findRootPages)
+    private function setRootPages($findRootPages)
     {
         $_SESSION['root_pages'] = $findRootPages;
     }
 
-    public function getRootPages()
+    private function getRootPages()
     {
         return $_SESSION['root_pages'];
     }
 
-    public function hasRootPages()
+    private function hasRootPages()
     {
         return isset($_SESSION['root_pages']);
     }

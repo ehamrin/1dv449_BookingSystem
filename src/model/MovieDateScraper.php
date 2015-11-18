@@ -1,7 +1,7 @@
 <?php
 
 
-namespace controller;
+namespace model;
 
 
 class MovieDateScraper
@@ -13,11 +13,11 @@ class MovieDateScraper
         $data = $scrape->get($url)->find('//a')->getData();
 
         if($data->length != 3){
-            throw new \HttpRequestException("Could not find base links on page");
+            throw new \ScraperException("Could not find base links on page");
         }
 
         if($scrape->getInfo()['http_code'] != 200){
-            throw new \HttpRequestException("Failed getting a proper response from server @\"{$url}\"");
+            throw new \ScraperException("Failed getting a proper response from server @\"{$url}\"");
         }
 
         foreach($data as $node){
@@ -33,7 +33,7 @@ class MovieDateScraper
         $data = $scrape->get($url)->find('//a')->getData();
 
         if($scrape->getInfo()['http_code'] != 200){
-            throw new \HttpRequestException("Failed getting a proper response from server when scanning calendars @\"{$url}\"");
+            throw new \ScraperException("Failed getting a proper response from server when scanning calendars @\"{$url}\"");
         }
 
         $calendars = array();
@@ -62,7 +62,7 @@ class MovieDateScraper
         $data = $scrape->get($url)->find('//select[@id="movie"]//option[@value]')->getData();
 
         if($scrape->getInfo()['http_code'] != 200){
-            throw new \HttpRequestException("Failed getting a proper response from server when scanning cinema @\"{$url}\"");
+            throw new \ScraperException("Failed getting a proper response from server when scanning cinema @\"{$url}\"");
         }
 
         $movies = array();
@@ -120,7 +120,7 @@ class MovieDateScraper
         $date = array();
 
         if($scrape->getInfo()['http_code'] != 200){
-            throw new \HttpRequestException("Failed getting a proper response from server when scanning restaurant @\"{$url}\"");
+            throw new \ScraperException("Failed getting a proper response from server when scanning restaurant @\"{$url}\"");
         }
 
         foreach($data as $node){
@@ -168,7 +168,7 @@ class MovieDateScraper
         if(isset($scrape->getInfo()['http_code']) && $scrape->getInfo()['http_code'] == 200){
             return $post;
         }else{
-            throw new \HttpRequestException("Failed getting a proper response from server when booking a table @\"{$url}\"");
+            throw new \ScraperException("Failed getting a proper response from server when booking a table @\"{$url}\"");
         }
     }
 

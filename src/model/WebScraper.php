@@ -1,7 +1,7 @@
 <?php
 
 
-namespace controller;
+namespace model;
 
 
 class WebScraper
@@ -58,6 +58,9 @@ class WebScraper
      */
     public function find($query){
         $dom = new \DOMDocument();
+        if(empty($this->data)){
+            throw new \BadFunctionCallException("There is no data to load");
+        }
         if($dom->loadHTML($this->data)){
             $xpath = new \DOMXPath($dom);
             $this->foundResult = $xpath->query($query);
