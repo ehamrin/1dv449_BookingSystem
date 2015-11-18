@@ -24,8 +24,7 @@ class BookingSystem
 
     public function doControl(){
         if($this->view->userReset()){
-            $this->model->reset();
-            $this->view->reset();
+            $this->reset();
         }
         if($this->view->submittedRootPage()){
             $this->model->setRoot($this->view->getRoot());
@@ -34,12 +33,12 @@ class BookingSystem
         if($this->model->hasRootPage() == false){
             $this->output = $this->view->showRootForm();
         }else{
-            $this->model->scan();
-
             try{
+                $this->model->scan();
+
                 if($this->view->submittedDate() && $result = $this->model->bookRestaurant($this->username, $this->password, $this->view->getDate())){
-                    $this->output = $this->view->setSuccessfulBooking($result);
-                    $this->model->reset();
+                    $this->view->setSuccessfulBooking($result);
+                    $this->reset();
                 }else{
                     $this->output = $this->view->showAvailable();
                 }
@@ -51,6 +50,11 @@ class BookingSystem
                 $this->output = $this->view->showRootForm("Unexpected Error");
             }
         }
+    }
+
+    private function reset(){
+        $this->model->reset();
+        $this->view->reset();
     }
 
     public function getView(){

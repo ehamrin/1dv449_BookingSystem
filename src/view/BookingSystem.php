@@ -4,6 +4,8 @@
 namespace view;
 
 
+use model\FlashMessages;
+
 class BookingSystem
 {
     private $model;
@@ -15,7 +17,15 @@ class BookingSystem
     }
 
     public function showRootForm($message = false){
-        return ($message ? '<p class="error">' . $message . '</p>' : '') . '
+        if($message !== false){
+            new FlashMessages('error', $message);
+        }
+
+        if(count($_POST)){
+            $this->reset();
+        }
+
+        return '
 <form method="POST" action="">
     <input type="url" name="' . self::$formRootURL . '" placeholder="Ange URL"/>
     <button type="submit">Starta</button>
@@ -24,16 +34,28 @@ class BookingSystem
     }
 
     public function submittedRootPage(){
-        return isset($_REQUEST[self::$formRootURL]) && filter_var($_REQUEST[self::$formRootURL], FILTER_VALIDATE_URL);
+        if(isset($_POST[self::$formRootURL])){
+            if(filter_var($_POST[self::$formRootURL], FILTER_VALIDATE_URL)){
+                return true;
+            }
+            if(empty($_POST[self::$formRootURL])){
+                new FlashMessages('error', 'URL cannot be empty');
+            }else{
+                new FlashMessages('error', 'URL is not valid');
+            }
+            $this->reset();
+        }
+
+        return false;
     }
 
     public function submittedDate(){
-        return isset($_REQUEST['date']);
+        return isset($_POST['date']);
     }
 
     public function getDate(){
         $data = $this->model->getAvailableMovieDinners();
-        return $data[$_REQUEST['date']];
+        return $data[$_POST['date']];
     }
 
     public function userReset(){
@@ -51,12 +73,17 @@ class BookingSystem
     }
 
     public function showAvailable(){
+
         $data = $this->model->getAvailableMovieDinners();
         $options = '<h1>Välj en passande tid</h1>
             <form action="" method="POST">';
 
         if(isset($_POST['do_reservation']) && !isset($_POST['date'])){
-            $options .= '<p class="error">Du måste välja ett alternativ</p>';
+            new FlashMessages('error', 'Du måste välja ett alternativ');
+        }
+
+        if(count($_POST)){
+            $this->reset();
         }
 
         $prev = "";
@@ -83,7 +110,7 @@ class BookingSystem
     }
 
     public function setSuccessfulBooking($message){
-        return '<p class="success">Din boking genomfördes med meddelande: <em>' . $message . '</em></p>' . $this->renderDate($this->getDate());
+        new FlashMessages('success', 'Din boking genomfördes med meddelande: <em>' . $message . '</em></p>' . $this->renderDate($this->getDate()) . '<p>');
     }
 
     private function renderDate(\model\Date $date, $inForm = false){
@@ -92,7 +119,7 @@ class BookingSystem
         $return .= '<div class="date inline-1-4">';
         $return .= $inForm !== false ? '<input type="radio" value="' . $inForm . '" name="date" class="check-hidden" />' : '';
         $return .= '
-                <div class="date-info">
+                <div class="date-info' . ($inForm !== false ? ' link' : '')  . '">
                     <h3>' . $date->movie->name . '</h3>
                     <p><strong>Tid:</strong><br />' . date('H:i', $date->start) . '-' . date('H:i', $date->end) . '</p>
                     <p>

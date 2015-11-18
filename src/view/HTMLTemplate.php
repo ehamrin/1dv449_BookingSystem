@@ -7,6 +7,14 @@ namespace view;
 class HTMLTemplate
 {
     public function render($body){
+        $messages = '';
+        $flashmessages = \model\FlashMessages::findAll();
+
+        foreach($flashmessages as $message){
+            /** @var $message \model\FlashMessages */
+            $messages .= '<p class="' . $message->getType() . '">' . $message->getMessage() . '</p>';
+        }
+
         return <<<HTML
 <!DOCTYPE html>
 <html lang="sv">
@@ -17,8 +25,9 @@ class HTMLTemplate
 </head>
 <body>
     <div class="wrapper">
-    <div><a href="?reset">Nollställ</a></div>
-    {$body}
+        {$messages}
+        <div><a href="?reset">Nollställ</a></div>
+        {$body}
     </div>
 </body>
 </html>
