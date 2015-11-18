@@ -9,7 +9,11 @@ Ja, är det en omfattande skrapning så meddela i förväg. Man bör följa robo
 
 ##Begränsningar i din lösning- vad är generellt och vad är inte generellt i din kod?
 WebScraper klassen har hållts så generell som möjligt och är het enkelt en serviceklass för cURL och XPath. De övriga delarna bör kunna fungera på en sida som har liknande upplägg, men AJAX-anropet på biografen är hårdkodat och likaså veckodagarnas textrepresentation.
+
+
 Jag har försökt att hålla det mesta som inte är dynamisk i en singletonklass MovieDateScraper.
+
+Det bör vara möjligt att lägga till fler personer förutsatt att de har olika namn. Om vardagar skulle läggas till behöver dock koden kompletteras lite då det endast har "översättningar" för fredag-söndag.
 
 ##Vad kan robots.txt spela för roll?
 Den kan användas som riktlinje för vad skrapan bör/inte bör kolla för sidor. Detta är dock ingenting som per automatik ger tillåtelse att det är okej att kartlägga information enligt en del ägare, se denna artikel om facebook: http://petewarden.com/2010/04/05/how-i-got-sued-by-facebook/
